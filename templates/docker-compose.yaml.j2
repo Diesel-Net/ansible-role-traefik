@@ -62,7 +62,7 @@ services:
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.email={{ resolver["email"] }}'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.storage=/etc/traefik/acme/{{ resolver["name"] }}.json'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.caServer={{ resolver["url"] }}'
-{% endif %}
+{% endfor%}
       
 
     deploy:
