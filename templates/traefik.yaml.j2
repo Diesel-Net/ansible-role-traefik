@@ -1,0 +1,17 @@
+# traefik.yaml
+# https://doc.traefik.io/traefik/reference/dynamic-configuration/file/
+
+tls:
+  certificates: {% if not traefik_certs %}[]{% endif %}
+
+{% for item in traefik_certs %}
+
+    - certFile: '/etc/traefik/certs/{{ item.common_name }}.crt'
+      keyFile: '/etc/traefik/certs/{{ item.common_name }}.key'
+  
+{% endfor %}
+
+http:
+  serversTransports:
+    elasticsearch:
+      insecureSkipVerify: true

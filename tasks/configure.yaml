@@ -1,0 +1,63 @@
+- include_role:
+    name: common
+    tasks_from: make_config_dir
+
+- include_role:
+    name: common
+    tasks_from: make_data_dir
+
+- name: Ensure directories exists
+  file: 
+    path: '{{ directory }}'
+    state: directory
+  loop_control:
+    loop_var: directory
+  loop:
+    - '{{ config_dir }}/dynamic'
+    - '{{ config_dir }}/certs'
+
+- name: Render public certificates
+  copy:
+    content: '{{ item.crt }}'
+    dest: '{{ config_dir }}/certs/{{ item.common_name }}.crt'
+  with_items: '{{ traefik_certs }}'
+  loop_control:
+    label: "{{ item.common_name }}.crt"
+  when: traefik_certs is defined
+
+- name: Render private keys
+  copy:
+    content: '{{ item.key }}'
+    dest: '{{ config_dir }}/certs/{{ item.common_name }}.key'
+  with_items: '{{ traefik_certs }}'
+  loop_control:
+    label: "{{ item.common_name }}.key"
+  when: traefik_certs is defined
+
+- name: 'Render dynamic configuration to {{ config_dir }}/dynamic/traefik.yaml'
+  template:
+    src: traefik.yaml.j2
+    dest: "{{ config_dir }}/dynamic/traefik.yaml"
+
+- name: Allow port 80 (HTTP)
+  ufw:
+    rule: allow
+    port: '80'
+    proto: any
+  become: yes
+  when: inventory_dir | basename != 'local'
+
+- name: Allow port 443 (HTTPS)
+  ufw:
+    rule: allow
+    port: '443'
+    proto: any
+  become: yes
+  when: inventory_dir | basename != 'local'
+
+- name: Reload Firewall and enable at boot
+  ufw:
+    state: enabled
+    policy: deny
+  become: yes
+  when: inventory_dir | basename != 'local'
