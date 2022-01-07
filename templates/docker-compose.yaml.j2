@@ -53,8 +53,16 @@ services:
 
       # Trust X-Forwarded-* Headers from specific IPs
       # https://community.traefik.io/t/how-to-properly-use-x-forwarded-for-in-v2/3834
-      - '--entryPoints.web.forwardedHeaders.trustedIPs={{ trusted_ips | join(",") }}'
-      - '--entryPoints.websecure.forwardedHeaders.trustedIPs={{ trusted_ips | join(",") }}'
+      - '--entryPoints.web.forwardedHeaders.trustedIPs={{ traefik_trusted_ips | join(",") }}'
+      - '--entryPoints.websecure.forwardedHeaders.trustedIPs={{ traefik_trusted_ips | join(",") }}'
+
+{% for resolver in traefik_acme_resolvers %}
+      - '--certificatesresolvers.{{ resolver["name"] }}.acme.httpchallenge=true'
+      - '--certificatesresolvers.{{ resolver["name"] }}.acme.httpchallenge.entrypoint=web'
+      - '--certificatesresolvers.{{ resolver["name"] }}.acme.email={{ resolver["email"] }}'
+      - '--certificatesresolvers.{{ resolver["name"] }}.acme.storage=/etc/traefik/acme/{{ resolver["name"] }}.json'
+      - '--certificatesresolvers.{{ resolver["name"] }}.acme.caServer={{ resolver["url"] }}'
+{% endif %}
 
       # Public cert resolver (Let's Encrypt)
       - '--certificatesresolvers.lets-encrypt.acme.httpchallenge=true'
@@ -79,43 +87,26 @@ services:
         condition: any
       labels:
         - traefik.enable=true
-
-        # required in swarm
         - traefik.http.services.api@internal.loadbalancer.server.port=8080
         #- traefik.http.routers.dashboard.service=api@internal
 
         - traefik.http.routers.dashboard.tls.certresolver=step-ca
         
         # router rules must be defined within a single docker label
-        - traefik.http.routers.dashboard.rule=Host(`{{ domain }}`)
+        - traefik.http.routers.dashboard.rule=Host(`{{ host }}`)
         
         # basic-auth middleware
-        - traefik.http.middlewares.dashboard-auth.basicauth.users={{ htpasswd }}
+        - traefik.http.middlewares.dashboard-auth.basicauth.users={{ traefik_htpasswd }}
 
         # redirect to /dashboard/
-        - traefik.http.middlewares.dashboard-redirect.redirectregex.regex=^https://{{ domain | replace('.', '\.') }}$$
-        - traefik.http.middlewares.dashboard-redirect.redirectregex.replacement=https://{{ domain }}/dashboard/
+        - traefik.http.middlewares.dashboard-redirect.redirectregex.regex=^https://{{ host | replace('.', '\.') }}$$
+        - traefik.http.middlewares.dashboard-redirect.redirectregex.replacement=https://{{ host }}/dashboard/
         - traefik.http.middlewares.dashboard-redirect.redirectregex.permanent=false
 
         # assign middlewares (order matters)
         - traefik.http.routers.dashboard.middlewares=dashboard-auth@docker, dashboard-redirect@docker
     networks:
       - {{ traefik_network }}
-
-{% if env == 'dev' %}
-  demo:
-    image: nginxdemos/hello
-    deploy:
-      labels:
-        - traefik.enable=true
-        - traefik.http.services.demo.loadbalancer.server.port=80
-        - traefik.http.routers.demo.tls.certresolver=step-ca
-        - traefik.http.routers.demo.rule=Host(`{{ domain }}`) && PathPrefix(`/demo`)
-        - traefik.http.middlewares.demo.stripprefix.prefixes=/demo
-        - traefik.http.routers.demo.middlewares=demo@docker
-    networks:
-      - {{ traefik_network }}
-{% endif %}
 
 networks:
   {{ traefik_network }}:
