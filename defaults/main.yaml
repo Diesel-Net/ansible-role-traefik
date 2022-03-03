@@ -1,0 +1,9 @@
+traefik_certs: []
+traefik_network: diesel_net
+
+# username: admin
+# password: traefik
+traefik_htpasswd: admin:{SHA}qD4s5Uu+8772OqfwKwjb2n/a5MU=
+
+traefik_trusted_ips: []
+traefik_acme_resolvers: []

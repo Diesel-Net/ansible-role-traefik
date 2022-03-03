@@ -1,0 +1,100 @@
+
+version: '3.8'
+services: 
+
+
+  proxy:
+    image: traefik:v2.5.2
+    volumes:
+      - {{ localtime_file }}:/etc/localtime
+      - {{ ssl_cert_file }}:/etc/ssl/certs/ca-certificates.crt
+      - {{ docker_socket }}:/var/run/docker.sock
+      - {{ config_dir }}/certs/:/etc/traefik/certs/
+      - {{ config_dir }}/dynamic/:/etc/traefik/dynamic/
+      - {{ data_dir }}/acme/:/etc/traefik/acme/
+    ports:
+      - 80:80
+      - 443:443
+    command:
+      # observability (logging)
+      - '--log.level=INFO'
+      - '--accesslog=true'
+
+      # Enable dashboard
+      - '--api=true'
+      - '--api.dashboard=true'
+      
+      # Docker swarm configuration
+      - '--providers.docker=true'
+      - '--providers.docker.endpoint=unix:///var/run/docker.sock'
+      - '--providers.docker.swarmMode=true'
+      - '--providers.docker.exposedbydefault=false'
+      - '--providers.docker.network={{ traefik_network }}'
+      - '--providers.docker.watch=true'
+
+      # File provider
+      - '--providers.file=true'
+      - '--providers.file.directory=/etc/traefik/dynamic'
+      - '--providers.file.watch=true'
+      
+      # Configure entrypoints
+      - '--entryPoints.web.address=:80'
+      - '--entryPoints.websecure.address=:443'
+
+      # needed to enable TLS, unless a cert-resolver (ACME) is used
+      - '--entryPoints.websecure.http.tls=true'
+
+      # Global HTTP -> HTTPS redirect
+      - '--entryPoints.web.http.redirections.entryPoint.to=websecure'
+      - '--entryPoints.web.http.redirections.entryPoint.scheme=https'
+
+      # disable backend server ssl verification
+      - '--serversTransport.insecureSkipVerify=true'
+
+      # Trust X-Forwarded-* Headers from specific IPs
+      # https://community.traefik.io/t/how-to-properly-use-x-forwarded-for-in-v2/3834
+      - '--entryPoints.web.forwardedHeaders.trustedIPs={{ traefik_trusted_ips | join(",") }}'
+      - '--entryPoints.websecure.forwardedHeaders.trustedIPs={{ traefik_trusted_ips | join(",") }}'
+
+{% for resolver in traefik_acme_resolvers %}
+      - '--certificatesresolvers.{{ resolver["name"] }}.acme.httpchallenge=true'
+      - '--certificatesresolvers.{{ resolver["name"] }}.acme.httpchallenge.entrypoint=web'
+      - '--certificatesresolvers.{{ resolver["name"] }}.acme.email={{ resolver["email"] }}'
+      - '--certificatesresolvers.{{ resolver["name"] }}.acme.storage=/etc/traefik/acme/{{ resolver["name"] }}.json'
+      - '--certificatesresolvers.{{ resolver["name"] }}.acme.caServer={{ resolver["url"] }}'
+{% endfor%}
+      
+
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: any
+      labels:
+        - traefik.enable=true
+        - traefik.http.services.api@internal.loadbalancer.server.port=8080
+        #- traefik.http.routers.dashboard.service=api@internal
+
+        - traefik.http.routers.dashboard.tls.certresolver=step-ca
+        
+        # router rules must be defined within a single docker label
+        - traefik.http.routers.dashboard.rule=Host(`{{ host }}`)
+        
+        # basic-auth middleware
+        - traefik.http.middlewares.dashboard-auth.basicauth.users={{ traefik_htpasswd }}
+
+        # redirect to /dashboard/
+        - traefik.http.middlewares.dashboard-redirect.redirectregex.regex=^https://{{ host | replace('.', '\.') }}$$
+        - traefik.http.middlewares.dashboard-redirect.redirectregex.replacement=https://{{ host }}/dashboard/
+        - traefik.http.middlewares.dashboard-redirect.redirectregex.permanent=false
+
+        # assign middlewares (order matters)
+        - traefik.http.routers.dashboard.middlewares=dashboard-auth@docker, dashboard-redirect@docker
+    networks:
+      - {{ traefik_network }}
+
+networks:
+  {{ traefik_network }}:
+    external:
+      name: {{ traefik_network }}
