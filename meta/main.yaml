@@ -17,5 +17,5 @@ galaxy_info:
 
 
 dependencies:
-  - name: docker
-  - name: common
+  - role: docker
+  - role: common
