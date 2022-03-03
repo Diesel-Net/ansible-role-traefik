@@ -17,10 +17,5 @@ galaxy_info:
 
 
 dependencies:
-
-  - name: docker
-    scm: git
-    src: "git@github.com:Diesel-Net/ansible-role-docker.git"
-    version: development
-    
+  - docker
   - common
