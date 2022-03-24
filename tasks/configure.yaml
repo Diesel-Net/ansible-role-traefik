@@ -15,6 +15,7 @@
   loop:
     - '{{ config_dir }}/dynamic'
     - '{{ config_dir }}/certs'
+    - '{{ data_dir }}/acme'
 
 - name: Render public certificates
   copy:

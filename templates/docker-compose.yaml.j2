@@ -6,9 +6,9 @@ services:
   proxy:
     image: traefik:v2.5.2
     volumes:
-      - {{ localtime_file }}:/etc/localtime
-      - {{ ssl_cert_file }}:/etc/ssl/certs/ca-certificates.crt
-      - {{ docker_socket }}:/var/run/docker.sock
+      - /etc/localtime:/etc/localtime
+      - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
+      - /var/run/docker.sock:/var/run/docker.sock
       - {{ config_dir }}/certs/:/etc/traefik/certs/
       - {{ config_dir }}/dynamic/:/etc/traefik/dynamic/
       - {{ data_dir }}/acme/:/etc/traefik/acme/
