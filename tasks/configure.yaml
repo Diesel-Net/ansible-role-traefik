@@ -1,9 +1,9 @@
 - include_role:
-    name: common
+    name: application
     tasks_from: make_config_dir
 
 - include_role:
-    name: common
+    name: application
     tasks_from: make_data_dir
 
 - name: Ensure directories exists
@@ -46,7 +46,6 @@
     port: '80'
     proto: any
   become: yes
-  when: inventory_dir | basename != 'local'
 
 - name: Allow port 443 (HTTPS)
   ufw:
@@ -54,11 +53,9 @@
     port: '443'
     proto: any
   become: yes
-  when: inventory_dir | basename != 'local'
 
 - name: Reload Firewall and enable at boot
   ufw:
     state: enabled
     policy: deny
   become: yes
-  when: inventory_dir | basename != 'local'
