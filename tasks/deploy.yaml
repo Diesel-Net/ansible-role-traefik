@@ -1,10 +1,5 @@
 - include_role:
     name: docker
-    tasks_from: swarm_init
-  when: inventory_dir | basename == 'local'
-
-- include_role:
-    name: docker
     tasks_from: network_create
   vars:
     docker_network: '{{ traefik_network }}'
@@ -13,7 +8,7 @@
     name: docker
     tasks_from: stack_deploy
   vars:
-    docker_compose_template: docker-compose.yaml.j2
+    docker_compose_template: docker-compose.yaml
 
 # TODO: Look into this more, Do we still need this? Enable hot reload?
 # We are now mounting the entire config the file directory, instead of just the file, to avoid inode linking issue
