@@ -37,7 +37,7 @@
 
 - name: 'Render dynamic configuration to {{ config_dir }}/dynamic/traefik.yaml'
   template:
-    src: traefik.yaml.j2
+    src: traefik.yaml
     dest: "{{ config_dir }}/dynamic/traefik.yaml"
 
 - name: Allow port 80 (HTTP)
