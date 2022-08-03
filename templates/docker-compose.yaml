@@ -75,8 +75,9 @@ services:
         - traefik.enable=true
         - traefik.http.services.api@internal.loadbalancer.server.port=8080
         #- traefik.http.routers.dashboard.service=api@internal
-
-        - traefik.http.routers.dashboard.tls.certresolver=step-ca
+{% if traefik_cert_resolver %}
+        - traefik.http.routers.dashboard.tls.certresolver={{ traefik_cert_resolver }}
+{% endif %}
         
         # router rules must be defined within a single docker label
         - traefik.http.routers.dashboard.rule=Host(`{{ host }}`)
@@ -84,7 +85,7 @@ services:
         # basic-auth middleware
         - traefik.http.middlewares.dashboard-auth.basicauth.users={{ traefik_htpasswd }}
 
-        # redirect to /dashboard/
+        # redirect /dashboard to /dashboard/
         - traefik.http.middlewares.dashboard-redirect.redirectregex.regex=^https://{{ host | replace('.', '\.') }}$$
         - traefik.http.middlewares.dashboard-redirect.redirectregex.replacement=https://{{ host }}/dashboard/
         - traefik.http.middlewares.dashboard-redirect.redirectregex.permanent=false

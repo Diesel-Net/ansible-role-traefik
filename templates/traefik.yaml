@@ -10,8 +10,3 @@ tls:
       keyFile: '/etc/traefik/certs/{{ item.common_name }}.key'
   
 {% endfor %}
-
-http:
-  serversTransports:
-    elasticsearch:
-      insecureSkipVerify: true

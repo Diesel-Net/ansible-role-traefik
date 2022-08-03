@@ -1,9 +1,9 @@
 - include_role:
-    name: common
+    name: application
     tasks_from: make_config_dir
 
 - include_role:
-    name: common
+    name: application
     tasks_from: make_data_dir
 
 - name: Ensure directories exists
@@ -37,7 +37,7 @@
 
 - name: 'Render dynamic configuration to {{ config_dir }}/dynamic/traefik.yaml'
   template:
-    src: traefik.yaml.j2
+    src: traefik.yaml
     dest: "{{ config_dir }}/dynamic/traefik.yaml"
 
 - name: Allow port 80 (HTTP)
@@ -46,7 +46,6 @@
     port: '80'
     proto: any
   become: yes
-  when: inventory_dir | basename != 'local'
 
 - name: Allow port 443 (HTTPS)
   ufw:
@@ -54,11 +53,9 @@
     port: '443'
     proto: any
   become: yes
-  when: inventory_dir | basename != 'local'
 
 - name: Reload Firewall and enable at boot
   ufw:
     state: enabled
     policy: deny
   become: yes
-  when: inventory_dir | basename != 'local'
