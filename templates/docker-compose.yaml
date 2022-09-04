@@ -17,7 +17,7 @@ services:
       - 443:443
     command:
       # observability (logging)
-      - '--log.level=WARN'
+      - '--log.level=DEBUG'
       - '--accesslog=true'
 
       # Enable dashboard
