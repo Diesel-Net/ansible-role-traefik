@@ -59,6 +59,7 @@ services:
       - '--entryPoints.web.forwardedHeaders.trustedIPs={{ traefik_trusted_ips | join(",") }}'
       - '--entryPoints.websecure.forwardedHeaders.trustedIPs={{ traefik_trusted_ips | join(",") }}'
 
+      # certificate resolvers
 {% for resolver in traefik_acme_resolvers %}
 {% if resolver["challenge"] == "HTTP-01" %}
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.httpchallenge=true'
