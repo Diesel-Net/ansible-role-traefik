@@ -60,7 +60,6 @@ services:
       - '--entryPoints.websecure.forwardedHeaders.trustedIPs={{ traefik_trusted_ips | join(",") }}'
 
 {% for resolver in traefik_acme_resolvers %}
-
 {% if resolver["challenge"] == "HTTP-01" %}
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.httpchallenge=true'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.httpchallenge.entrypoint=web'
@@ -68,17 +67,12 @@ services:
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.storage=/etc/traefik/acme/{{ resolver["name"] }}.json'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.caServer={{ resolver["url"] }}'
 {% endif %}
-
 {% if resolver["challenge"] == "DNS-01" %}
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.dnschallenge=true'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.dnschallenge.provider={{ resolver["provider"] }}'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.storage=/etc/traefik/acme/{{ resolver["name"] }}.json'
 {% endif %}
-
-    
 {% endfor %}
-      
-
     deploy:
       placement:
         constraints:
