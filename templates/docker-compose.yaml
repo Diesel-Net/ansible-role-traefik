@@ -58,7 +58,7 @@ services:
 
 {% for resolver in traefik_acme_resolvers %}
 
-{% if resolver["challenge"] == "http-01" %}
+{% if resolver["challenge"] == "HTTP-01" %}
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.httpchallenge=true'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.httpchallenge.entrypoint=web'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.email={{ resolver["email"] }}'
@@ -66,7 +66,7 @@ services:
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.caServer={{ resolver["url"] }}'
 {% endif %}
 
-{% if resolver["challenge"] == "dns-01" %}
+{% if resolver["challenge"] == "DNS-01" %}
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.dnschallenge=true'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.dnschallenge.provider={{ resolver["provider"] }}'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.email={{ resolver["email"] }}'
