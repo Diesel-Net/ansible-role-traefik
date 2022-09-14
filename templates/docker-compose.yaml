@@ -71,6 +71,7 @@ services:
 {% if resolver["challenge"] == "DNS-01" %}
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.dnschallenge=true'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.dnschallenge.provider={{ resolver["provider"] }}'
+      - '--certificatesresolvers.{{ resolver["name"] }}.acme.dnschallenge.resolvers={{ resolver["dns_resolvers"] | join(",") }}'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.storage=/etc/traefik/acme/{{ resolver["name"] }}.json'
 {% endif %}
 {% endfor %}
