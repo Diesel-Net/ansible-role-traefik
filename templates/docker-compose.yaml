@@ -4,7 +4,7 @@ services:
 
 
   proxy:
-    image: traefik:2.7.1
+    image: traefik:2.8.5
     volumes:
       - /etc/localtime:/etc/localtime
       - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
@@ -15,9 +15,12 @@ services:
     ports:
       - 80:80
       - 443:443
+    environment:
+      - CF_API_EMAIL={{ lookup("env", "CF_API_EMAIL") }}
+      - CF_DNS_API_TOKEN={{ lookup("env", "CF_DNS_API_TOKEN") }}
     command:
       # observability (logging)
-      - '--log.level=WARN'
+      - '--log.level=DEBUG'
       - '--accesslog=true'
 
       # Enable dashboard
@@ -56,15 +59,23 @@ services:
       - '--entryPoints.web.forwardedHeaders.trustedIPs={{ traefik_trusted_ips | join(",") }}'
       - '--entryPoints.websecure.forwardedHeaders.trustedIPs={{ traefik_trusted_ips | join(",") }}'
 
+      # certificate resolvers
 {% for resolver in traefik_acme_resolvers %}
+{% if resolver["challenge"] == "HTTP-01" %}
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.httpchallenge=true'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.httpchallenge.entrypoint=web'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.email={{ resolver["email"] }}'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.storage=/etc/traefik/acme/{{ resolver["name"] }}.json'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.caServer={{ resolver["url"] }}'
-{% endfor%}
-      
-
+{% endif %}
+{% if resolver["challenge"] == "DNS-01" %}
+      - '--certificatesresolvers.{{ resolver["name"] }}.acme.dnschallenge=true'
+      - '--certificatesresolvers.{{ resolver["name"] }}.acme.dnschallenge.provider={{ resolver["provider"] }}'
+      - '--certificatesresolvers.{{ resolver["name"] }}.acme.dnschallenge.resolvers[0]={{ resolver["dns_resolver"] }}'
+      - '--certificatesresolvers.{{ resolver["name"] }}.acme.email={{ resolver["email"] }}'
+      - '--certificatesresolvers.{{ resolver["name"] }}.acme.storage=/etc/traefik/acme/{{ resolver["name"] }}.json'
+{% endif %}
+{% endfor %}
     deploy:
       placement:
         constraints:
