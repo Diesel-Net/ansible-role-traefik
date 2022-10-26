@@ -4,7 +4,7 @@ services:
 
 
   proxy:
-    image: traefik:2.8.5
+    image: traefik:2.9.1
     volumes:
       - /etc/localtime:/etc/localtime
       - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
@@ -25,7 +25,7 @@ services:
 
       # Enable dashboard
       - '--api=true'
-      - '--api.dashboard=true'
+      - '--api.dashboard={{ traefik_dashboard | string | lower  }}'
       
       # Docker swarm configuration
       - '--providers.docker=true'
@@ -83,7 +83,7 @@ services:
       restart_policy:
         condition: any
       labels:
-        - traefik.enable=true
+        - traefik.enable={{ traefik_dashboard | string | lower  }}
         - traefik.http.services.api@internal.loadbalancer.server.port=8080
         #- traefik.http.routers.dashboard.service=api@internal
 {% if traefik_cert_resolver %}
