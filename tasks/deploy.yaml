@@ -9,7 +9,7 @@
     tasks_from: stack_deploy
 
 # force reload
-  include_role:
+- include_role:
     name: docker
     tasks_from: service_update
   vars:
