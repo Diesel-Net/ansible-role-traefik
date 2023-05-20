@@ -8,8 +8,7 @@
     name: docker
     tasks_from: stack_deploy
 
-# force reload to pick up new config file changes
-- when: traefik_certs or traefik_config
+# force reload
   include_role:
     name: docker
     tasks_from: service_update
