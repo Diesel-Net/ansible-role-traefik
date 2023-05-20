@@ -11,3 +11,6 @@ traefik_htpasswd: admin:{SHA}qD4s5Uu+8772OqfwKwjb2n/a5MU=
 
 traefik_trusted_ips: []
 traefik_acme_resolvers: []
+
+cf_api_email: '{{ lookup("env", "CF_API_EMAIL") }}'
+cf_dns_api_token: '{{ lookup("env", "CF_DNS_API_TOKEN") }}'
