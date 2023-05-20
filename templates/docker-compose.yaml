@@ -91,14 +91,14 @@ services:
 {% endif %}
         
         # router rules must be defined within a single docker label
-        - traefik.http.routers.dashboard.rule=Host(`{{ host }}`)
+        - traefik.http.routers.dashboard.rule=Host(`{{ traefik_host }}`)
         
         # basic-auth middleware
         - traefik.http.middlewares.dashboard-auth.basicauth.users={{ traefik_htpasswd }}
 
         # redirect /dashboard to /dashboard/
-        - traefik.http.middlewares.dashboard-redirect.redirectregex.regex=^https://{{ host | replace('.', '\.') }}$$
-        - traefik.http.middlewares.dashboard-redirect.redirectregex.replacement=https://{{ host }}/dashboard/
+        - traefik.http.middlewares.dashboard-redirect.redirectregex.regex=^https://{{ traefik_host | replace('.', '\.') }}$$
+        - traefik.http.middlewares.dashboard-redirect.redirectregex.replacement=https://{{ traefik_host }}/dashboard/
         - traefik.http.middlewares.dashboard-redirect.redirectregex.permanent=false
 
         # assign middlewares (order matters)
