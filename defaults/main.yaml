@@ -6,7 +6,7 @@ traefik_network: traefik_net
 # default username: admin
 # default password: traefik
 traefik_dashboard: no
-traefik_host: localhost
+traefik_host: 'traefik.{{ inventory_hostname }}'
 traefik_htpasswd: admin:{SHA}qD4s5Uu+8772OqfwKwjb2n/a5MU=
 
 traefik_trusted_ips: []
