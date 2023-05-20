@@ -1,5 +1,7 @@
 traefik_certs: []
+traefik_config: {}
 traefik_network: traefik_net
+
 
 # username: admin
 # password: traefik
