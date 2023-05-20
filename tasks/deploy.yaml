@@ -7,12 +7,10 @@
 - include_role:
     name: docker
     tasks_from: stack_deploy
-  vars:
-    docker_compose_template: docker-compose.yaml
 
-# TODO: Look into this more, Do we still need this? Enable hot reload?
-# We are now mounting the entire config the file directory, instead of just the file, to avoid inode linking issue
-# Are we using overlay2? https://docs.docker.com/storage/storagedriver/overlayfs-driver/
-- name: Restart the service to pick up new certificates
-  shell: docker service update --force {{ repository }}_{{ version }}_proxy
-  when: traefik_certs
+# force reload
+- include_role:
+    name: docker
+    tasks_from: service_update
+  vars:
+    options: --force

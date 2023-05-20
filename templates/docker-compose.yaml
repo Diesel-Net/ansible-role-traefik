@@ -4,7 +4,7 @@ services:
 
 
   proxy:
-    image: traefik:2.9.5
+    image: traefik:2.10.1
     volumes:
       - /etc/localtime:/etc/localtime
       - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
@@ -16,10 +16,10 @@ services:
       - 80:80
       - 443:443
     environment:
-      - CF_API_EMAIL={{ lookup("env", "CF_API_EMAIL") }}
-      - CF_DNS_API_TOKEN={{ lookup("env", "CF_DNS_API_TOKEN") }}
+      - 'CF_API_EMAIL={{ cf_api_email }}'
+      - 'CF_DNS_API_TOKEN={{ cf_dns_api_token }}'
     command:
-      # observability (logging)
+      # Logging
       - '--log.level=INFO'
       - '--accesslog=true'
 
@@ -91,14 +91,14 @@ services:
 {% endif %}
         
         # router rules must be defined within a single docker label
-        - traefik.http.routers.dashboard.rule=Host(`{{ host }}`)
+        - traefik.http.routers.dashboard.rule=Host(`{{ traefik_host }}`)
         
         # basic-auth middleware
         - traefik.http.middlewares.dashboard-auth.basicauth.users={{ traefik_htpasswd }}
 
         # redirect /dashboard to /dashboard/
-        - traefik.http.middlewares.dashboard-redirect.redirectregex.regex=^https://{{ host | replace('.', '\.') }}$$
-        - traefik.http.middlewares.dashboard-redirect.redirectregex.replacement=https://{{ host }}/dashboard/
+        - traefik.http.middlewares.dashboard-redirect.redirectregex.regex=^https://{{ traefik_host | replace('.', '\.') }}$$
+        - traefik.http.middlewares.dashboard-redirect.redirectregex.replacement=https://{{ traefik_host }}/dashboard/
         - traefik.http.middlewares.dashboard-redirect.redirectregex.permanent=false
 
         # assign middlewares (order matters)

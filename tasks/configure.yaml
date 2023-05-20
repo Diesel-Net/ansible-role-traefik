@@ -35,10 +35,15 @@
     label: "{{ item.common_name }}.key"
   when: traefik_certs is defined
 
-- name: 'Render dynamic configuration to {{ config_dir }}/dynamic/traefik.yaml'
+- name: 'Render dynamic configuration for TLS Certs to {{ config_dir }}/dynamic/certs.yaml'
   template:
-    src: traefik.yaml
-    dest: "{{ config_dir }}/dynamic/traefik.yaml"
+    src: certs.yaml
+    dest: "{{ config_dir }}/dynamic/certs.yaml"
+
+- name: 'Copy dynamic configuration from variable to {{ config_dir }}/dynamic/config.yaml'
+  copy:
+    content: '{{ traefik_config }}'
+    dest: "{{ config_dir }}/dynamic/config.yaml"
 
 - name: Allow port 80 (HTTP)
   ufw:
