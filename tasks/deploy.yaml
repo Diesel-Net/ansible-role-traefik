@@ -1,10 +1,14 @@
 - include_role:
     name: application
     tasks_from: make_config_dir
+  vars:
+    app_name: traefik
 
 - include_role:
     name: application
     tasks_from: make_data_dir
+  vars:
+    app_name: traefik
 
 - name: Ensure directories exists
   file: 
@@ -16,6 +20,8 @@
     - '{{ config_dir }}/dynamic'
     - '{{ config_dir }}/certs'
     - '{{ data_dir }}/acme'
+  vars:
+    app_name: traefik
 
 - name: Render public certificates
   copy:
@@ -25,6 +31,8 @@
   loop_control:
     label: "{{ item.common_name }}.crt"
   when: traefik_certs is defined
+  vars:
+    app_name: traefik
 
 - name: Render private keys
   copy:
@@ -34,16 +42,22 @@
   loop_control:
     label: "{{ item.common_name }}.key"
   when: traefik_certs is defined
+  vars:
+    app_name: traefik
 
 - name: 'Render dynamic configuration for TLS Certs to {{ config_dir }}/dynamic/certs.yaml'
   template:
     src: certs.yaml
     dest: "{{ config_dir }}/dynamic/certs.yaml"
+  vars:
+    app_name: traefik
 
 - name: 'Copy dynamic configuration from variable to {{ config_dir }}/dynamic/config.yaml'
   copy:
     content: '{{ traefik_config }}'
     dest: "{{ config_dir }}/dynamic/config.yaml"
+  vars:
+    app_name: traefik
 
 - name: Allow port 80 (HTTP)
   ufw:
