@@ -1,3 +1,4 @@
+traefik_cert_resolver: step-ca
 traefik_certs: []
 traefik_config: {}
 traefik_network: traefik_net
