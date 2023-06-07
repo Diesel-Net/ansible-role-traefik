@@ -74,6 +74,8 @@
 - include_role:
     name: docker
     tasks_from: stack_deploy
+  vars:
+    app_name: traefik
 
 # force reload
 - include_role:
@@ -81,4 +83,6 @@
     tasks_from: service_update
   vars:
     options: --force
+    app_name: traefik
+    docker_service: proxy
 
