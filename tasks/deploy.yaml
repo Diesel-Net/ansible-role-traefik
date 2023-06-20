@@ -84,6 +84,7 @@
     tasks_from: network_create
   vars:
     docker_network: '{{ traefik_network }}'
+    options: --scope=swarm --driver=overlay
 
 - include_role:
     name: docker
