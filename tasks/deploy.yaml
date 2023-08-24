@@ -54,8 +54,9 @@
 
 - name: 'Copy dynamic configuration from variable to {{ config_dir }}/dynamic/config.yaml'
   copy:
-    content: '{{ traefik_config }}'
+    content: '{{ traefik_config | to_nice_yaml }}'
     dest: "{{ config_dir }}/dynamic/config.yaml"
+  when: traefik_config
   vars:
     app_name: traefik
 
@@ -84,6 +85,7 @@
     tasks_from: network_create
   vars:
     docker_network: '{{ traefik_network }}'
+    options: --scope=swarm --driver=overlay
 
 - include_role:
     name: docker
