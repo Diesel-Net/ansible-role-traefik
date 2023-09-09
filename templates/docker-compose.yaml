@@ -4,7 +4,7 @@ services:
 
 
   proxy:
-    image: traefik:2.10.1
+    image: traefik:2.10.4
     volumes:
       - /etc/localtime:/etc/localtime
       - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
@@ -71,7 +71,7 @@ services:
 {% if resolver["challenge"] == "DNS-01" %}
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.dnschallenge=true'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.dnschallenge.provider={{ resolver["provider"] }}'
-      - '--certificatesresolvers.{{ resolver["name"] }}.acme.dnschallenge.resolvers[0]={{ resolver["dns_resolver"] }}'
+      - '--certificatesresolvers.{{ resolver["name"] }}.acme.dnschallenge.resolvers={{ resolver["resolvers"] | join(",") }}'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.email={{ resolver["email"] }}'
       - '--certificatesresolvers.{{ resolver["name"] }}.acme.storage=/etc/traefik/acme/{{ resolver["name"] }}.json'
 {% endif %}

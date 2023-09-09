@@ -1,6 +1,6 @@
 traefik_cert_resolver: step-ca
 traefik_certs: []
-traefik_config: {}
+traefik_config: {} # dynamic config (file provider)
 traefik_network: traefik_net
 
 
