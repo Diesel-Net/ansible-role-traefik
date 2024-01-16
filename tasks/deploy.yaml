@@ -85,7 +85,7 @@
     tasks_from: network_create
   vars:
     docker_network: '{{ traefik_network }}'
-    options: --scope=swarm --driver=overlay
+    opts: --scope=swarm --driver=overlay
 
 - include_role:
     name: docker
@@ -98,7 +98,7 @@
     name: docker
     tasks_from: service_update
   vars:
-    options: --force
+    opts: --force
     app_name: traefik
     docker_service: proxy
 
