@@ -1,10 +1,10 @@
 
 version: '3.8'
-services: 
+services:
 
 
   proxy:
-    image: traefik:2.10.7
+    image: traefik:2.11.41
     volumes:
       - /etc/localtime:/etc/localtime
       - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
@@ -26,7 +26,7 @@ services:
       # Enable dashboard
       - '--api=true'
       - '--api.dashboard={{ traefik_dashboard | string | lower  }}'
-      
+
       # Docker swarm configuration
       - '--providers.docker=true'
       - '--providers.docker.endpoint=unix:///var/run/docker.sock'
@@ -39,7 +39,7 @@ services:
       - '--providers.file=true'
       - '--providers.file.directory=/etc/traefik/dynamic'
       - '--providers.file.watch=true'
-      
+
       # Configure entrypoints
       - '--entryPoints.web.address=:80'
       - '--entryPoints.websecure.address=:443'
@@ -89,10 +89,10 @@ services:
 {% if traefik_cert_resolver %}
         - traefik.http.routers.dashboard.tls.certresolver={{ traefik_cert_resolver }}
 {% endif %}
-        
+
         # router rules must be defined within a single docker label
         - traefik.http.routers.dashboard.rule=Host(`{{ traefik_host }}`)
-        
+
         # basic-auth middleware
         - traefik.http.middlewares.dashboard-auth.basicauth.users={{ traefik_htpasswd }}
 
